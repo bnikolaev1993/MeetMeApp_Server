@@ -15,7 +15,7 @@ exports.create = function (req, res) {
   Users.create(userCred, userDet, function (err) {
     if (err) {
       console.log(err);
-      return res.status(500).send({ error: 'Saving first user failed!' });
+      return res.status(500).send({ error: 'Saving user failed!' });
     }
     res.sendStatus(200);
   });

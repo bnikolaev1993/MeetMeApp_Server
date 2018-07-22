@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var mySQL = require('mysql');
 var db = require('./db');
 var usersController = require('./controllers/users');
+var placesController = require('./controllers/places');
 
 var app = express();
 
@@ -19,6 +20,7 @@ app.get('/artists/:id', function(req, res) {
 });
 
 app.post('/addUser', usersController.create);
+app.post('/addPlace', placesController.create);
 app.get('/users', usersController.selectAll);
 app.post('/login', usersController.login);
 
