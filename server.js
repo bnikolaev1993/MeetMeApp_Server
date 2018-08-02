@@ -23,13 +23,7 @@ app.post('/addUser', usersController.create);
 app.post('/addPlace', placesController.create);
 app.get('/users', usersController.selectAll);
 app.post('/login', usersController.login);
-
-app.put('/artists/:id', function(req, res) {
-  var artist = artists.find(function(artist) {
-    return artist.id === Number(req.params.id);
-  });
-  artist.name = req.body.name;
-});
+app.get('/getPlaceByCity/:city', placesController.getPlaceByCity);
 
 db.connect(function(err) {
   if (err) return console.log(err);

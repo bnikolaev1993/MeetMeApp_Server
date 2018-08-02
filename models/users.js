@@ -19,7 +19,7 @@ exports.login = function(userCred, cb) {
     'SELECT * FROM meetmeapp.user WHERE username="' + userCred.username + '" AND password="' + userCred.password + '" LIMIT 1',
     function(err, rows) {
       if (err) return cb(err, null);
-      if (!rows[0]) return cb("Invalid Login", null);
+      if (!rows[0]) return cb("Invalid Login! Bobby", null);
       return cb(err, rows[0]);
     });
 };

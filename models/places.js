@@ -6,3 +6,9 @@ exports.create = function(placeCred, cb) {
     cb();
   });
 };
+
+exports.getPlaceByCity = function(city, cb) {
+  db.get().query('SELECT * FROM meetmeapp.place WHERE city=?', city, function(err, rows) {
+    cb(err, rows);
+  });
+};
