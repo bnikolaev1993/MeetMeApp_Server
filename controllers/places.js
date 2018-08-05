@@ -9,7 +9,8 @@ exports.create = function (req, res) {
     city: req.body.city,
     privacy: req.body.privacy,
     lat: req.body.lat,
-    long: req.body.long
+    long: req.body.long,
+    description: req.body.description
   };
   console.log("Lat: " + placeCred.lat);
   console.log("Long: " + placeCred.long);
