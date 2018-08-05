@@ -24,6 +24,8 @@ app.post('/addPlace', placesController.create);
 app.get('/users', usersController.selectAll);
 app.post('/login', usersController.login);
 app.get('/getPlaceByCity/:city', placesController.getPlaceByCity);
+app.post('/joinPlace', placesController.joinPlace);
+app.post('/leavePlace', placesController.leavePlace);
 
 db.connect(function(err) {
   if (err) return console.log(err);

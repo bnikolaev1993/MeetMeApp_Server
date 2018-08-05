@@ -13,6 +13,7 @@ exports.connect = function(done) {
   });
   state.db.connect(function(err) {
     if (err) return done(err);
+    state.db.query('USE meetmeapp');
     return done();
   });
 };

@@ -16,11 +16,25 @@ exports.create = function(userCred, userDet, cb) {
 
 exports.login = function(userCred, cb) {
   db.get().query(
-    'SELECT * FROM meetmeapp.user WHERE username="' + userCred.username + '" AND password="' + userCred.password + '" LIMIT 1',
+    'SELECT id FROM meetmeapp.user WHERE username="' + userCred.username + '" AND password="' + userCred.password + '" LIMIT 1',
     function(err, rows) {
       if (err) return cb(err, null);
-      if (!rows[0]) return cb("Invalid Login! Bobby", null);
-      return cb(err, rows[0]);
+      if (!rows[0]) return cb("Invalid Login! No values", null);
+      db.get().query('SELECT user.id, user.username, userDetails.name, userDetails.surname, userDetails.gender, userDetails.dob ' +
+        'FROM meetmeapp.user INNER JOIN userDetails ON user.id = userDetails.user_id ' +
+        'WHERE user.id = ?', rows[0].id, function(err, rows1) {
+          if (err) return cb(err, null);
+          db.get().query('SELECT placeManager.*, place.* FROM meetmeapp.placeManager ' +
+          'INNER JOIN place ON placeManager.place_id = place.id ' +
+          'WHERE placeManager.participant_id = ?', rows1[0].id, function(err, place) {
+            var data = [];
+            data.push({
+              "User": rows1[0],
+              "Place": place
+            });
+            return cb(err, data[0]);
+          });
+        });
     });
 };
 
