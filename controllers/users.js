@@ -7,8 +7,8 @@ exports.create = function (req, res) {
   };
   var userDet = {
     user_id: "",
-    name: req.body.firstname,
-    surname: req.body.familyname,
+    name: req.body.name,
+    surname: req.body.surname,
     dob: req.body.dob,
     gender: req.body.gender
   };

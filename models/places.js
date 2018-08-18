@@ -32,10 +32,17 @@ exports.leavePlace = function(credID, cb) {
   });
 };
 
+exports.deletePlace = function(credID, cb) {
+  db.get().query('DELETE FROM meetmeapp.place WHERE id = "' + credID.place_id +
+  '" AND user_id = "' + credID.user_id + '"', function(err) {
+    cb(err);
+  });
+};
+
 exports.getPlaceById = function(place_id, cb) {
-  db.get().query('SELECT * FROM meetmeapp.placeManager WHERE id=?',
+  db.get().query('SELECT * FROM meetmeapp.place WHERE id = ?',
     place_id, function(err, rows) {
-    if (err) return cb(err);
-    cb(err, rows[0]);
+    if (err) return cb(err, nil);
+    cb(err, rows);
   });
 };

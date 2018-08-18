@@ -8,6 +8,10 @@ exports.create = function(userCred, userDet, cb) {
       console.log("ID: " + rows[0].id);
       userDet.user_id = rows[0].id;
       db.get().query('INSERT INTO meetmeapp.userDetails SET ?', userDet, function(err) {
+        if (err) {
+          db.get().query('DELETE FROM meetmeapp.user WHERE id = "' + rows[0].id + '"');
+          return cb(err);
+        }
         return cb(err);
       });
     });

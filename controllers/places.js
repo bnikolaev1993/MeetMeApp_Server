@@ -67,13 +67,29 @@ exports.leavePlace = function(req, res) {
   });
 };
 
+exports.deletePlace = function(req, res) {
+  var credID = {
+    place_id: req.body.place_id,
+    user_id: req.body.user_id
+  };
+  Places.deletePlace(credID, function(err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({ error: 'Deleting place failed!' });
+    }
+    res.sendStatus(200);
+    console.log("Place Deleted successfully!");
+  });
+};
+
 exports.getPlaceById = function(req, res) {
   var place_id = req.params.place_id;
-  Places.joinPlace(place_id, function(err, rows) {
-    if (err) {
+  console.log("ID:", place_id);
+  Places.getPlaceById(place_id, function(err, rows) {
+    if (err || rows.length == 0) {
       console.log(err);
       return res.status(500).send({ error: 'Getting place failed!' });
     }
-    res.send(rows);
+    res.sendStatus(200);
   });
 };
