@@ -18,15 +18,15 @@ module.exports.listen = function(app) {
     io.to(place).emit("userConnectUpdate", nickname);
 
     console.log('user ' + nickname + ' is connected to the ' + place);
+    console.log('Socket ID: ' + clientSocket.id);
 
     clientSocket.on('disconnect', function() {
       console.log('user disconnected');
 
       delete typingUsers[nickname];
-      io.to(place).emit("userList", userList);
       io.to(place).emit("userExitUpdate", nickname);
       io.to(place).emit("userTypingUpdate", typingUsers);
-      //clientSocket.leave(place);
+      clientSocket.leave(place);
     });
 
     clientSocket.on("exitUser", function(clientNickname) {
@@ -39,12 +39,14 @@ module.exports.listen = function(app) {
       }
     });
 
-    clientSocket.on('getHistoryMessages', function(placeID) {
-      Message.getHistory(placeID, function(err, rows) {
+    clientSocket.on("getHistoryMessages", function() {
+      console.log('History has been loaded!');
+      Message.getHistory(paramPlace, function(err, rows) {
         if (err) {
           console.log(err);
           return res.status(404).send({"error": err});
         }
+        console.log('History has been loaded!');
         clientSocket.emit("loadHistory", rows);
       });
     });
@@ -54,6 +56,7 @@ module.exports.listen = function(app) {
       delete typingUsers[clientNickname];
       var msg = {
         place_id: placeID,
+        nickname: nickname,
         message: message,
         date: currentDateTime
       };

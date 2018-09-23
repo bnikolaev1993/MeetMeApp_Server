@@ -7,7 +7,7 @@ exports.addMessage = function(msg, cb) {
 };
 
 exports.getHistory = function(placeID, cb) {
-  db.get().query('SELECT * FROM meetmeapp.message WHERE place_id=? LIMIT 5', placeID, function(err, rows) {
+  db.get().query('SELECT nickname, message, date FROM meetmeapp.message WHERE place_id=? ORDER BY date ASC LIMIT 5', placeID, function(err, rows) {
     if (err) return cb(err, null);
     return cb(err, rows);
   });
