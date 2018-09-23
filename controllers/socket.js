@@ -1,4 +1,5 @@
 var socketio = require('socket.io');
+var Message = require('../models/socket.js');
 
 module.exports.listen = function(app) {
 
@@ -9,84 +10,74 @@ module.exports.listen = function(app) {
   var typingUsers = {};
 
   io.on('connection', function(clientSocket) {
-    console.log('a user connected');
+
+    var nickname = clientSocket.handshake.query.nickname;
+    var paramPlace = clientSocket.handshake.query.place;
+    var place = 'room ' + paramPlace.toString();
+    clientSocket.join(place);
+    io.to(place).emit("userConnectUpdate", nickname);
+
+    console.log('user ' + nickname + ' is connected to the ' + place);
 
     clientSocket.on('disconnect', function() {
       console.log('user disconnected');
 
-      var clientNickname;
-      for (var i = 0; i < userList.length; i++) {
-        if (userList[i].id == clientSocket.id) {
-          userList[i].isConnected = false;
-          clientNickname = userList[i].nickname;
-          break;
-        }
-      }
-
-      delete typingUsers[clientNickname];
-      io.emit("userList", userList);
-      io.emit("userExitUpdate", clientNickname);
-      io.emit("userTypingUpdate", typingUsers);
+      delete typingUsers[nickname];
+      io.to(place).emit("userList", userList);
+      io.to(place).emit("userExitUpdate", nickname);
+      io.to(place).emit("userTypingUpdate", typingUsers);
+      //clientSocket.leave(place);
     });
 
     clientSocket.on("exitUser", function(clientNickname) {
       for (var i = 0; i < userList.length; i++) {
         if (userList[i].id == clientSocket.id) {
-          io.emit("userExitUpdate", userList[i].nickname);
+          io.to(place).emit("userExitUpdate", userList[i].nickname);
           userList.splice(i, 1);
           break;
         }
       }
     });
 
-
-    clientSocket.on('chatMessage', function(clientNickname, message) {
-      var currentDateTime = new Date().toLocaleString();
-      delete typingUsers[clientNickname];
-      io.emit("userTypingUpdate", typingUsers);
-      io.emit('newChatMessage', clientNickname, message, currentDateTime);
+    clientSocket.on('getHistoryMessages', function(placeID) {
+      Message.getHistory(placeID, function(err, rows) {
+        if (err) {
+          console.log(err);
+          return res.status(404).send({"error": err});
+        }
+        clientSocket.emit("loadHistory", rows);
+      });
     });
 
-
-    clientSocket.on("connectUser", function(clientNickname) {
-      var message = "User " + clientNickname + " was connected.";
-      console.log(message);
-
-      var userInfo = {};
-      var foundUser = false;
-      for (var i = 0; i < userList.length; i++) {
-        if (userList[i].nickname == clientNickname) {
-          userList[i].isConnected = true;
-          userList[i].id = clientSocket.id;
-          userInfo = userList[i];
-          foundUser = true;
-          break;
+    clientSocket.on('chatMessage', function(clientNickname, placeID, message) {
+      var currentDateTime = new Date().toLocaleString();
+      delete typingUsers[clientNickname];
+      var msg = {
+        place_id: placeID,
+        message: message,
+        date: currentDateTime
+      };
+      Message.addMessage(msg, function (err) {
+        if (err) {
+          console.log(err);
         }
-      }
-
-      if (!foundUser) {
-        userInfo.id = clientSocket.id;
-        userInfo.nickname = clientNickname;
-        userInfo.isConnected = true;
-        userList.push(userInfo);
-      }
-
-      io.emit("userList", userList);
-      io.emit("userConnectUpdate", userInfo);
+        io.to(place).emit("userTypingUpdate", typingUsers);
+        io.to(place).emit('newChatMessage', clientNickname, message, currentDateTime);
+      });
     });
 
 
     clientSocket.on("startType", function(clientNickname) {
       console.log("User " + clientNickname + " is writing a message...");
       typingUsers[clientNickname] = 1;
-      io.emit("userTypingUpdate", typingUsers);
+      io.to(place).emit("userTypingUpdate", typingUsers);
     });
 
 
     clientSocket.on("stopType", function(clientNickname) {
       console.log("User " + clientNickname + " has stopped writing a message...");
       delete typingUsers[clientNickname];
-      io.emit("userTypingUpdate", typingUsers);
+      io.to(place).emit("userTypingUpdate", typingUsers);
     });
 
   });

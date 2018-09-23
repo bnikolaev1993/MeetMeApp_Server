@@ -2,7 +2,6 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
-var mySQL = require('mysql');
 var db = require('./db');
 var io = require('./controllers/socket');
 var usersController = require('./controllers/users');
